@@ -24,15 +24,16 @@ json_t *floatVec2Json(const std::vector<float> &vec)
 
 int main()
 {
-	int n_action = 8;
-	int dim_input = 32 * 32;
+	int n_action = 3;
+	int dim_input = 360;
 
 //learning params
 	float gamma = 0.99;
-	float alpha_w = 3e-2;
-	float alpha_z = 3e-2;
+	float alpha_w = 3e-5;
+	float alpha_z = 3e-5;
 
 	float loop_freq_hz = 10;
+	bool do_load = false;
 
 	std::string weight_save_path = "ac_wall_weights.json";
 	std::string weight_load_path = weight_save_path;
@@ -105,11 +106,11 @@ int main()
 		}
 	};
 
-	load_weights(weight_load_path);
+	if(do_load)load_weights(weight_load_path);
 	//other internal states
 	bool is_first = true;
 
-	float learning_stop_threshold = 0.05;
+	float learning_stop_threshold = 100;
 	bool waiting_for_restart = false;
 	int stop_in_n_loop = 0;
 
@@ -252,7 +253,9 @@ int main()
 				action[j] += z_ij[j][i] * input_vec[i];
 			}
 			p_j[j] = std::exp(2. * action[j]);
+			std::cout << p_j[j] << ", ";
 		}
+		std::cout << std::endl;
 
 		actual_action = std::discrete_distribution<unsigned int>(p_j.begin(), p_j.end())(rng_engine);
 
@@ -310,6 +313,6 @@ int main()
 			std::printf("saving weights\n");
 			save_weights(weight_save_path);
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 }

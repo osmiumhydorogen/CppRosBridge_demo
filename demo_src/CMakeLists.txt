@@ -9,6 +9,8 @@ link_directories("${JANSSON_LIBRARY_DIRS}")
 add_executable(actor_critic_demo actor_critic_demo.cpp)
 add_executable(simple_control_demo simple_control_demo.cpp)
 add_executable(publish_example publish_example.cpp)
+add_executable(subscribe_example subscribe_example.cpp)
+add_executable(chat_example chat_example.cpp)
 
 add_library(rosmsg_tool
 SHARED
@@ -23,10 +25,15 @@ target_include_directories(actor_critic_demo PUBLIC "${JANSSON_INCLUDE_DIRS}")
 target_include_directories(simple_control_demo PUBLIC "${PROJECT_SOURCE_DIR}/inc")
 target_include_directories(simple_control_demo PUBLIC "${JANSSON_INCLUDE_DIRS}")
 
-target_include_directories(publish_example PUBLIC "${PROJECT_SOURCE_DIR}/inc")
+target_include_directories(publish_example PUBLIC )
 #target_include_directories(publish_example PUBLIC "${PROJECT_SOURCE_DIR}/sock_wrapper")
 target_include_directories(publish_example PUBLIC "${JANSSON_INCLUDE_DIRS}")
 
+target_include_directories(subscribe_example PUBLIC "${JANSSON_INCLUDE_DIRS}")
+target_include_directories(subscribe_example PUBLIC "${PROJECT_SOURCE_DIR}/inc")
+
+target_include_directories(chat_example PUBLIC "${JANSSON_INCLUDE_DIRS}")
+target_include_directories(chat_example PUBLIC "${PROJECT_SOURCE_DIR}/inc")
 
 target_include_directories(rosmsg_tool PUBLIC "${JANSSON_INCLUDE_DIRS}")
 
@@ -57,4 +64,16 @@ ${JANSSON_LIBRARIES}
 wspp_wrapper
 rosmsg_tool
 )
+
+target_link_libraries(subscribe_example
+${JANSSON_LIBRARIES}
+wspp_wrapper
+rosmsg_tool
+)
 #add_dependencies(stdio_crb_debug crb_client)
+
+target_link_libraries(chat_example
+${JANSSON_LIBRARIES}
+wspp_wrapper
+rosmsg_tool
+)

@@ -9,6 +9,7 @@ SHARED
 target_link_libraries(wspp_wrapper
 ${WEBSOCKETPP_LIBRARIES}
 boost_system
+pthread
 )
 
 target_include_directories(wspp_wrapper

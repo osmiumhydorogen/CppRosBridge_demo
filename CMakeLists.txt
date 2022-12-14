@@ -13,3 +13,8 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/inc")
 include_directories("${JANSSON_INCLUDE_DIRS}")
 link_directories("${JANSSON_LIBRARY_DIRS}")
+
+add_library(cpp_rosbridge INTERFACE)
+target_link_libraries(cpp_rosbridge 
+	INTERFACE wspp_wrapper
+)

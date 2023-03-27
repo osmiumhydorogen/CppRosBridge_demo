@@ -1,5 +1,4 @@
 #include <wspp_wrapper.hpp>
-//#include <websocketpp/common/memory.hpp>
 
 namespace crb_sock
 {
@@ -25,21 +24,26 @@ namespace crb_sock
 			std::cout << "> Connect initialization error: " << ec.message() << std::endl;
 			return -1;
 		}
-		/*
-		_on_message = [&](websocketpp::connection_hdl hdl_, wspp_client_t::message_ptr msg_)
-		{
-			std::cout << "Something resieved." << std::endl;
-			if (msg_->get_opcode() == websocketpp::frame::opcode::text)
-			{
-        this->_callbk(msg_->get_payload());
-	    }
-		};
-		// */
+        //////////////////////////////////////////////// kuriyama
+        con->set_open_handler(websocketpp::lib::bind(
+            &WsppWrapper::_on_open,
+            this,
+            &_client_ep,
+            websocketpp::lib::placeholders::_1
+        ));
+        con->set_fail_handler(websocketpp::lib::bind(
+            &WsppWrapper::_on_fail,
+            this,
+            &_client_ep,
+            websocketpp::lib::placeholders::_1
+        ));
+        ///////////////////////////////////////////////////
+		
 		con->set_message_handler(websocketpp::lib::bind(
-	    &WsppWrapper::_on_message,
-	    this,
-	    websocketpp::lib::placeholders::_1,
-	    websocketpp::lib::placeholders::_2
+	        &WsppWrapper::_on_message,
+	        this,
+	        websocketpp::lib::placeholders::_1,
+	        websocketpp::lib::placeholders::_2
 		));
 		hdl=con->get_handle();
 		_client_ep.connect(con);
@@ -47,17 +51,43 @@ namespace crb_sock
 
 	void WsppWrapper::_on_message(websocketpp::connection_hdl hdl_, wspp_client_t::message_ptr msg_)
 	{
-		//std::cout << "Something recieved." << std::endl;
 		if (msg_->get_opcode() == websocketpp::frame::opcode::text)
 		{
-      this->_callbk(msg_->get_payload());
-    }
+            this->_callbk(msg_->get_payload());
+        }
 	}
+
+    ///////////////////////////////////////////// kuriyama
+	void WsppWrapper::_on_fail(wspp_client_t *c, websocketpp::connection_hdl hdl_)
+	{
+        std::cout << "> ERROR: Connection Failed" << std::endl;
+        wspp_client_t::connection_ptr con = c->get_con_from_hdl(hdl_);
+        std::cout << con->get_ec().message() << std::endl;
+
+        m_status = "Failed";
+	}
+	void WsppWrapper::_on_open(wspp_client_t *c, websocketpp::connection_hdl hdl_)
+	{
+        std::cout << "> Status: Connection Succeeded" << std::endl;
+        m_status = "Open";
+	}
+
+    void WsppWrapper::close(){
+        websocketpp::lib::error_code ec;
+        _client_ep.close(hdl, websocketpp::close::status::normal, "", ec);
+	    if (ec) {
+	    	std::cout << "> Error closing connection " << ": " << ec.message() << std::endl;
+	    }else{
+            std::cout << "> Status: Connection Closed." << std::endl;
+            m_status = "Closed";
+        }
+    }
+    ///////////////////////////////////////////
+
 
 	int WsppWrapper::sendStr(const std::string &str)
 	{
 		websocketpp::lib::error_code ec;
-		//std::cout <<"sending:" << str <<std::endl;
 		_client_ep.send(hdl, str, websocketpp::frame::opcode::text, ec);
 	}
 	int WsppWrapper::setRecieveCb(SockCallback_t cb)
@@ -67,14 +97,16 @@ namespace crb_sock
 
 	WsppWrapper::~WsppWrapper()
 	{
-		/*
-		websocketpp::lib::error_code ec;
-		_client_ep.close(hdl, websocketpp::close::status::going_away, "", ec);
-		if (ec) {
-			std::cout << "> Error closing connection " << ": "
-				<< ec.message() << std::endl;
-		}
-		m_thread->join();
-		// */
+        _client_ep.stop_perpetual();
+        if (m_status == "Open"){
+    		websocketpp::lib::error_code ec;
+            _client_ep.close(hdl, websocketpp::close::status::going_away, "", ec);
+		    if (ec) {
+		    	std::cout << "> Error closing connection " << ": " << ec.message() << std::endl;
+		    }else{
+                std::cout << "> Status: Connection Closed by destructor." << std::endl;
+            }
+        }
+        m_thread->join();
 	}
 }

@@ -8,7 +8,7 @@ int main(int argc, char const *argv[]) {
 	crb_sock::WsppWrapper sock;
 	double t_last_adv = 0;
 	//sock.connect("127.0.0.1", 9090);
-	std::cout <<"connect:"<< sock.connect("ws://0.0.0.0:9090") << std::endl;
+	std::cout <<"connect:"<< sock.connect("ws://127.0.0.1:9090") << std::endl;
 	crb_client::ConnectionManager<crb_sock::WsppWrapper> cm(&sock);
 	std::chrono::system_clock::time_point program_start, current_time;
 	/*
@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
 	op_json2 = json_object();
 	json_object_set_new(op_json2, "data", json_real(1.5));
 
-	for(;;)
+	for(int kuriyama = 0; kuriyama < 10; kuriyama++)
 	{
 		double t_from_start;
 		current_time = std::chrono::system_clock::now();
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[]) {
 		//if(t_from_start > 100000) break;
 		if(true)//t_from_start - t_last_adv >= 100)
 		{
-			std::cout << t_from_start << ":";
+			std::cout << t_from_start << ":" << std::endl;
 			//cm.advertise("testtopic", "std_msgs/Int64");
 			cm.publish("testtopic", *op_json);
 			cm.publish("testtopic2", *op_json2);

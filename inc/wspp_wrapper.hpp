@@ -18,6 +18,9 @@ public:
 	int sendStr(const std::string &str);
 	int setRecieveCb(SockCallback_t cb);
 
+    //kuriyama
+    void close();
+
 private:
 	SockCallback_t _callbk;
 	//std::function<void(websocketpp::connection_hdl, wspp_client_t::message_ptr)> _on_message;
@@ -26,6 +29,11 @@ private:
 	wspp_client_t::connection_ptr _con;
 	websocketpp::connection_hdl hdl;
 	websocketpp::lib::shared_ptr<websocketpp::lib::thread> m_thread;
+
+    //kuriyama
+	void _on_fail(wspp_client_t *c, websocketpp::connection_hdl hdl_);
+	void _on_open(wspp_client_t *c, websocketpp::connection_hdl hdl_);
+    std::string m_status;
 };
 
 }

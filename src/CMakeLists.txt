@@ -1,4 +1,4 @@
-find_package(websocketpp)
+#find_package(websocketpp)
 find_package(Boost)
 
 add_library(wspp_wrapper
